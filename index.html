@@ -14,16 +14,35 @@
             //JavaScriptのコード
             var canvas =document.getElementById("myCanvas");
             var ctx = canvas.getContext("2d");
+            /*
+            beginPath() ~記述~closePath()
+            rect(x-axis,y-axis,width,height):rectangle　
+            arc(center-x-axis,center-y-axis,radius,arg-st,ard-ed,option):pie
+            option >> false clockwise 
+                      true anticlockwise
+            fillStyle  塗りつぶしのスタイル
+            strokeStyle  アウトラインのスタイル
+            fill() 塗りつぶし
+            stroke()　縁
+            */          
             ctx.beginPath();
-            ctx.rect(20,40,50,50);
+            ctx.rect(20,40,50,50); 
             ctx.fillStyle="FF0000";
             ctx.fill();
             ctx.closePath();
+            
             ctx.beginPath();
             ctx.arc(240,160,20,0,Math.PI*2,false);
             ctx.fillStyle="green"
             ctx.fill();
             ctx.closePath();
+
+            ctx.beginPath();
+            ctx.rect(160,10,100,40);
+            ctx.strokeStyle="rgba(0,0,255,0.5)";
+            ctx.stroke();
+            ctx.closePath();
+
         </script>
     </body>
 </html>
