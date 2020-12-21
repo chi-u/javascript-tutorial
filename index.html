@@ -14,13 +14,25 @@
             //JavaScriptのコード
             var canvas =document.getElementById("myCanvas");
             var ctx = canvas.getContext("2d");
-            /*
-            setInterval(function,ms) run function per ms
-
+            
+            var ballRadius = 10;
+            var paddleHeight =10;
+            var paddleWidth =75;
+            var paddleX = (canvas.width-paddleWidth)/2;
             var x = canvas.width/2;
             var y = canvas.height-30;
+            var rightPressed =false;
+            var leftPressed =false;
+            
             var dx = 2;
             var dy = -2;
+            function drawPaddle(){
+                ctx.beginPath();
+                ctx.rect(paddleX, canvas.height-paddleHeight,paddleWidth,paddleHeight);
+                ctx.fillStyle = "#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
             function drawball(){
                 ctx.beginPath();
                 ctx.arc(x, y, 10, 0, Math.PI*2,false);
@@ -32,13 +44,66 @@
             function draw() {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 drawball();
+                drawPaddle()
+                if(y + dy < ballRadius || y + dy > canvas.height - ballRadius){
+                    dy=-dy;    
+                }
+                if(x + dx < ballRadius || x + dx > canvas.width - ballRadius){
+                    dx=-dx;    
+                }
+                if(leftPressed && paddleX > 0){
+                    paddleX -=7;
+                }else if(rightPressed && paddleX < canvas.width-paddleWidth){
+                    paddleX +=7;
+                }
                 x +=dx;
                 y +=dy;
 
             }
-            setInterval(draw, 10);
-             */
+            document.addEventListener("keydown",keyDownHandker,false);
+            document.addEventListener("keyup",keyUpHandker,false);
+           
+            function keyUpHandker(e){
+                if(e.key == "Right" || e.key == "ArrowRight"){
+                    rightPressed =false;
+                }else if(e.key == "Left" || e.key == "ArrowLeft"){
+                    leftPressed =false;
+                }
+            }
+            function keyDownHandker(e){
+                if(e.key == "Right" || e.key == "ArrowRight"){
+                    rightPressed =true;
+                }else if(e.key == "Left" || e.key == "ArrowLeft"){
+                    leftPressed =true;
+                }
+            }
+
+
+            var interval = setInterval(draw,10);
+            
             /*
+            パドルとキーボード操作
+            document.addEventListener(type, listener [,options]);
+            type 対象とするイベントの種類を表す文字列
+            listener イベントが発生するときに通知を受け取るオブジェクト
+            option falseで、子要素から親要素に向かってイベントが伝播し
+                   ます。もし、親要素のイベントを先に拾う場合には、オプ
+                   ションをtrueにしましょう。
+            */
+            /*
+            ボールを壁で弾ませる
+            考え方(壁があるような)
+            ボールの位置のyの値が0未満だったら、
+            符号反転させた値を設定することでy軸
+            方向の動きの向きを変えます。
+            */
+            /*
+            ボールを動かす
+            setInterval(function,ms) run function per ms
+            setInterval(draw, 10);
+            */
+            /*
+            描画する
             beginPath() ~記述~closePath()
             rect(x-axis,y-axis,width,height):rectangle　
             arc(center-x-axis,center-y-axis,radius,arg-st,ard-ed,option):pie
