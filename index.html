@@ -46,7 +46,7 @@
                 ctx.fill();
                 ctx.closePath();
             }
-            function drawball(){
+            function drawBall(){
                 ctx.beginPath();
                 ctx.arc(x, y, 10, 0, Math.PI*2,false);
                 ctx.fillStyle = "green";
@@ -54,10 +54,25 @@
                 ctx.closePath();
                 
             }
+            function drawBricks(){
+                for(var c = 0 ;c<brickColumnCount;c++){
+                    for(var r = 0 ; r<brickRowCount;r++){
+                        var brickX = ( c*(brickWidth+brickPadding))+brickOffsetLeft;
+                        var brickY = ( r*(brickHeight+brickPadding))+brickOffsetTop;
+                        bricks[c][r].x = brickX;
+                        bricks[c][r].y = brickY;
+                        ctx.beginPath();
+                        ctx.rect(brickX,brickY,brickWidth,brickHeight);
+                        ctx.fillStyle = "#0095DD";
+                        ctx.fill();
+                        ctx.closePath(); 
+                    }
+                }
+            }
             function draw() {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 drawBricks();
-                drawball();
+                drawBall();
                 drawPaddle();
                 
                 if(y + dy < ballRadius){
@@ -100,22 +115,7 @@
                     leftPressed =true;
                 }
             }
-            function drawBricks(){
-                for(var c = 0 ;c<brickColumnCount;c++){
-                    for(var r = 0 ; r<brickRowCount;r++){
-                        var brickX = ( c*(brickWidth))+brickOffsetLeft;
-                        var brickY = ( c*(brickHeight))+brickOffsetTop;
-                        
-                        brick[c][r].x = brickX;
-                        brick[c][r].y =brickY;
-                        ctx.beginPath();
-                        ctx.rect(brickX,brickY,brickWidth,brickHeight);
-                        ctx.fillStyle = "#0095DD";
-                        ctx.fill();
-                        ctx.closePath(); 
-                    }
-                }
-            }
+            
 
             var interval = setInterval(draw,10);
             
