@@ -9,16 +9,86 @@
         </style>
     </head>
     <body>
-        <canvas id ="myCanvas" width ="480" height="320"></canvas>
+        <canvas id ="myCanvas" width ="480" height="600"></canvas>
         <script>
             //JavaScriptのコード
+            /*
+            ボールのクラスを作成しました
+            ゲームの状態のクラス
+            あと
+            ブロック　PADDLEの作成
+            メソッドの調整
+            */class Ball{
+                #Radius;
+                #x=canvas.width/2;
+                #y=canvas.height-100;
+                #dx=5;
+                #dy=-5;
+                constructor(Radius){
+                    this.#Radius =Radius;
+                }
+                draw(c){
+                    c.beginPath();
+                    c.arc(this.#x, this.#y,this.#Radius, 0, Math.PI*2,false);
+                    c.fillStyle = "green";
+                    c.fill();
+                    c.closePath();
+                }
+                update(){
+                    this.#x += this.#dx;
+                    this.#y += this.#dy;
+                }
+                getRadius(){
+                    return this.#Radius;
+                }
+                getX(){
+                    return this.#x +this.#dx;
+                }
+                getY(){
+                    return this.#y + this.#dy;
+                }
+                turnX(){
+                    this.#dx *= -1; 
+                }
+                turnY(){
+                    this.#dy *= -1; 
+                }
+            }
+            class Rect{
+                height;
+                width;
+                constructor(height,weight){
+                    this.width=width;
+                    this.height= height;
+                }
+            }          
+            class Paddle extends Rect{
+                position;
+                constructor(height,weight,position){
+                    super(height,weight);
+                    this.position=position;
+                }
+            }
+            class  Wall extends Rect{
+                
+                constructor(height,weight){
+                    super(height,weight);
+                    this.position=position;
+                }
+            }
+            class  Block extends Rect{
+                #lives;
+                #status=1;
+                constructor(height,weight,lives){
+                    super(height,weight);
+                    this.#lives=lives;
+                }
+                draw(c){
+
+                }
+            }
             var canvas =document.getElementById("myCanvas");
             var ctx = canvas.getContext("2d");
-            var ballRadius = 10;
-            var x = canvas.width/2;
-            var y = canvas.height-30;
-            var dx = 2;
-            var dy = -2;
             var paddleHeight =10;
             var paddleWidth =75;
             var paddleX = (canvas.width-paddleWidth)/2;
@@ -40,11 +110,12 @@
             }
             var score = 0;
             var lives = 3;
-
+            var ball = new Ball(10);
+            
             document.addEventListener("keydown",keyDownHandker,false);
             document.addEventListener("keyup",keyUpHandker,false);
             document.addEventListener("mousemove",mouseMoveHandler,false);
-
+　　　　　//--------------------整合---------
             function mouseMoveHandler(e){
                 var relativeX =e.clientX - canvas.offsetLeft;
                 if(relativeX > 0 && relativeX< canvas.width){
@@ -65,14 +136,15 @@
                     leftPressed =true;
                 }
             }
+            //------------------------------
             //衝突検出関数
             function collisionDetection(){
                 for(var c = 0 ;c<brickColumnCount;c++){
                     for(var r = 0 ; r<brickRowCount;r++){
                         var b = bricks[c][r];
                         if(b.status == 1){
-                            if(x> b.x && x < b.x + brickWidth && y > b.y &&  y <b.y + brickHeight){
-                                dy=-dy;
+                            if(ball.getX()> b.x && ball.getX() < b.x + brickWidth && ball.getY() > b.y &&  ball.getY() <b.y + brickHeight){
+                                ball.turnY();
                                 b.status = 0; 
                                 score++;
                                 if(score== brickRowCount*brickColumnCount){
@@ -94,17 +166,10 @@
                 ctx.fillStyle="#0095DD";
                 ctx.fillText("Lives " + lives ,canvas.width-65,20);
             }
-            function drawBall(){
-                ctx.beginPath();
-                ctx.arc(x, y, 10, 0, Math.PI*2,false);
-                ctx.fillStyle = "green";
-                ctx.fill();
-                ctx.closePath();
-                
-            }
+           
             function drawPaddle(){
                 ctx.beginPath();
-                ctx.rect(paddleX, canvas.height-paddleHeight,paddleWidth,paddleHeight);
+                ctx.rect(paddleX, canvas.height-paddleHeight-50,paddleWidth,paddleHeight);
                 ctx.fillStyle = "#0095DD";
                 ctx.fill();
                 ctx.closePath();
@@ -128,45 +193,46 @@
                     }
                 }
             }
+            // void mainのような
             function draw() {
                 ctx.clearRect(0,0,canvas.width,canvas.height);
                 drawBricks();
-                drawBall();
+                ball.draw(ctx);
                 drawPaddle();
                 collisionDetection();
                 drawScore();
                 drawLives();
-                if(y + dy < ballRadius){
-                    dy=-dy;    
-                }else if(y + dy > canvas.height - ballRadius){
-                    if(x >paddleX && x < paddleX + paddleWidth){
-                        dy=-dy;
-                    }else{
+               
+                if(ball.getY()< ball.getRadius()){
+                    ball.turnY();    
+                
+                //}else if(ball.getY() > canvas.height - ball.getRadius()){
+                }else if(ball.getX() >paddleX && ball.getX() < paddleX + paddleWidth && ball.getY() > canvas.height-paddleHeight-50 && ball.getY() < canvas.height-50){
+                 
+                 //   if(ball.getX() >paddleX && ball.getX() < paddleX + paddleWidth && ball.getY() <canvas.height-paddleHeight-50 ){
+                        ball.turnY();
+                    }else if(ball.getY() >canvas.height-paddleHeight-50){
                         lives--;
                         if(!lives){
                             alert("GAME OVER");
                         document.location.reload();
                         }else{
-                            x = canvas.width/2;
-                            y = canvas.height-30;
-                            dx=2;
-                            dy=-2;
+                           ball=new Ball(10);
                             paddleX=(canvas.width-paddleWidth)/2;
                         }
 
-                       // clearInterval(interval);
+                      
                     }
-                }
-                if(x + dx < ballRadius || x + dx > canvas.width - ballRadius){
-                    dx=-dx;    
+               // }
+                if(ball.getX() < ball.getRadius() || ball.getX()> canvas.width - ball.getRadius()){
+                    ball.turnX();    
                 }
                 if(leftPressed && paddleX > 0){
                     paddleX -=7;
                 }else if(rightPressed && paddleX < canvas.width-paddleWidth){
                     paddleX +=7;
                 }
-                x +=dx;
-                y +=dy;
+                ball.update();
                 requestAnimationFrame(draw);
             }
             
