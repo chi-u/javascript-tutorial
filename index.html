@@ -41,7 +41,14 @@
             var score = 0;
             document.addEventListener("keydown",keyDownHandker,false);
             document.addEventListener("keyup",keyUpHandker,false);
-           
+            document.addEventListener("mousemove",mouseMoveHandler,false);
+
+            function mouseMoveHandler(e){
+                var relativeX =e.clientX - canvas.offsetLeft;
+                if(relativeX > 0 && relativeX< canvas.width){
+                    paddleX = relativeX -paddleWidth/2;
+                }
+            }
             function keyUpHandker(e){
                 if(e.key == "Right" || e.key == "ArrowRight"){
                     rightPressed =false;
