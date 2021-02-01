@@ -19,8 +19,10 @@
             ブロック　PADDLEの作成
             メソッドの調整
             */
+          
             class Ball{
-                _Radius;
+                
+                _Radius;//rを小文字に（また来週）
                 _x=canvas.width/2;
                 _y=canvas.height-100;
                 _dx=5;
@@ -54,35 +56,7 @@
                 turnY(){
                     this._dy *= -1; 
                 }
-                check(){
-                    if(ball.getY()< ball.getRadius()){
-                    ball.turnY();    
                 
-              
-                }else if(ball.getX() >paddle.getPosition() && ball.getX() < paddle.getPosition() + paddle.getWidth() && ball.getY() > canvas.height-paddle.getHeight()-50 && ball.getY() < canvas.height-50){
-                       ball.turnY();
-                }else if(ball.getY() >canvas.height-paddle.getHeight()-50){
-                    lives--;
-                    if(!lives){
-                    alert("GAME OVER");
-                    document.location.reload();
-                    }else{
-                        ball=new Ball(10);
-                        paddle.setPosition((canvas.width-paddle.getWidth())/2);
-                    }
-
-                      
-                }
-                if(ball.getX() < ball.getRadius() || ball.getX()> canvas.width - ball.getRadius()){
-                    ball.turnX();    
-                }
-                if(leftPressed && paddle.getPosition() > 0){
-                    paddle.setPosition(paddle.getPosition()-7);
-                }else if(rightPressed && paddle.getPosition() < canvas.width-paddle.getWidth()){
-                    paddle.setPosition(paddle.getPosition()+7);
-                }
-                ball.update();
-                }
             }
             class Rect{
                 _height;
@@ -102,7 +76,7 @@
                 _position;
                 constructor(height,width){
                     super(height,width);
-                    this._position=(canvas.width-width)/2;
+                    this._position=(wall.getWidth()+wall.getPositionX()-width)/2;
                 }
                 getPosition(){
                     return this._position;
@@ -112,36 +86,51 @@
                 }
                 draw(c){
                     c.beginPath();
-                c.rect(this._position, canvas.height-paddle.getHeight()-50,paddle.getWidth(),paddle.getHeight());
-                c.fillStyle = "#0095DD";
-                c.fill();
-                c.closePath();
+                    c.rect(this._position, wall.getPositionY()+wall.getHeight()-paddle.getHeight()-50,paddle.getWidth(),paddle.getHeight());
+                    c.fillStyle = "#0095DD";
+                    c.fill();
+                    c.closePath();
                 }
             }
             class Wall extends Rect{
-                _position;
+                _positionX;
+                _positionY;
+
                 constructor(height,width){
                     super(height,width);
-                    this._position=(canvas.width-width)/2;
+                    this._positionX=(canvas.width-width)/2;
+                    this._positionY=(canvas.height-height)/2;
+                    
                 }
-                getPosition(){
-                    return this._position;
+                getPositionX(){
+                    return this._positionX;
+                }
+                getPositionY(){
+                    return this._positionY;
                 }
                 setPosition(position){
-                    this._position=position;
+                    this._positionX=position;
+                }
+                draw(c){
+                    c.beginPath();
+                    c.rect(this._positionX, this._positionY,super.getWidth(),super.getHeight());
+                    c.fillStyle = "#FFFFFF";
+                    c.fill();
+                    c.closePath();
                 }
             }
 
-            class  Brick extends Rect{
-                _lives;
-                _status=1;
+            class Brick extends Rect{
+             
+                _status;
                 _postX;
-                _postY;                
-                constructor(height,width,postX,postY,status){
+                _postY;         
+                _color = ["#0000AA","#00AA00","#AA0000"];       
+                constructor(height,width,postX,postY){
                     super(height,width);
-                    this._status=status;
                     this._postX=postX;
                     this._postY=postY;
+                    this._status= Math.floor( Math.random() * 4);
                 }
                 getStatus(){
                     return this._status;
@@ -158,18 +147,24 @@
                 draw(c){
                     ctx.beginPath();
                     ctx.rect(this._postX,this._postY,this._width,this._height);
-                    ctx.fillStyle = "#0095DD";
+                    //ctx.fillStyle = "#009AAA";
+                    
+                    ctx.fillStyle = this._color[this._status-1];
+                    
                     ctx.fill();
+                    ctx.fillStyle = "#000000";
+                    ctx.stroke();
                     ctx.closePath();
                 }
             }
-     
+            
             class Bricks {
                 _row;
                 _col;
                 _padding;
                 _OffsetTop;
                 _OffsetLeft;
+                _totallscore =0;
                 bricktable =[];
                 constructor(row,col,padding,OffsetTop,OffsetLeft){
                     this._row=row;
@@ -177,42 +172,30 @@
                     this._padding=padding;
                     this._OffsetTop=OffsetTop;
                     this._OffsetLeft=OffsetLeft;
-                    
+                                
                     for(var c=0; c < col; c++){
                         this.bricktable[c] =[];
                         for(var r = 0; r < row;r++){
-                            this.bricktable[c][r] ={brick :new Brick(20,70,c*(70+padding)+OffsetLeft,r*(20+padding)+OffsetTop,1)};// 指定される場所にオブジェクトを代入する（x=0,y=0)
+                           
+                            this.bricktable[c][r] ={brick :new Brick(20,40,c*(40+padding)+OffsetLeft,r*(20+padding)+OffsetTop)};// 指定される場所にオブジェクトを代入する（x=0,y=0)
+                            this._totallscore += this.bricktable[c][r].brick.getStatus();
                         }
                     }          
+                    if(this._totallscore < 10){
+                        document.location.reload();
+                    }
                 }
-                collisionDetection(){
-                for(var c = 0 ;c<this._col;c++){
-                    for(var r = 0 ; r<this._row;r++){
-                        var b = this.bricktable[c][r];
-                        if(b.brick.getStatus() == 1){
-                            if(ball.getX()> b.brick.getPostX()  && ball.getX() < b.brick.getPostX() + b.brick.getWidth() && ball.getY() > b.brick.getPostY()  &&  ball.getY() <b.brick.getPostY()  + b.brick.getHeight()){
-                            
-                                ball.turnY();
-                                b.brick.setStatus(0) ; 
-                                score++;
-                                if(score== this._row*this._col){
-                                    alert("You Win, CONGRATULATIONS");
-                                    document.location.reload();
-                                }
+                
+                draw(c){
+                    for(var c = 0 ;c<this._col;c++){
+                        for(var r = 0 ; r<this._row;r++){
+                            if(this.bricktable[c][r].brick.getStatus()>0){
+                                this.bricktable[c][r].brick.draw(c);
                             }
                         }
                     }
-                }        
-            }
-            drawBricks(c){
-                for(var c = 0 ;c<this._col;c++){
-                    for(var r = 0 ; r<this._row;r++){
-                        if(this.bricktable[c][r].brick.getStatus()==1){
-                            this.bricktable[c][r].brick.draw(c);
-                        }
-                    }
                 }
-            }
+              
         }
             
           //  Object.assign(Rect.prototype,basestatus);
@@ -220,20 +203,38 @@
             var ctx = canvas.getContext("2d");
             var rightPressed =false;
             var leftPressed =false;
-            var bricks = new Bricks(3,5,10,30,30);
+            var wall = new Wall(540,420);
+            var bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30);
             var paddle = new Paddle(10,75);
             var score = 0;
             var lives = 3;
-            var ball = new Ball(10);
+            var ball = new Ball(5);
             document.addEventListener("keydown",keyDownHandker,false);
             document.addEventListener("keyup",keyUpHandker,false);
+            
             document.addEventListener("mousemove",mouseMoveHandler,false);
+            draw();
+            function draw() {
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+                wall.draw(ctx);
+                bricks.draw(ctx);
+                ball.draw(ctx);
+                paddle.draw(ctx);
+               
+                collisionDetection();
+                drawScore();
+                drawLives();
+                check();
+                requestAnimationFrame(draw);
+            }
+            
 　　　　　//--------------------整合---------
             function mouseMoveHandler(e){
                 var relativeX =e.clientX - canvas.offsetLeft;
-                if(relativeX > 0 && relativeX< canvas.width){
-                    paddle.setPosition(relativeX -paddle.getWidth()/2);
+                if(relativeX >  paddle.getWidth() +wall.getPositionX()&& relativeX< wall.getWidth()+wall.getPositionX()){
+                    paddle.setPosition(relativeX -paddle.getWidth());
                 }
+                
             }
             function keyUpHandker(e){
                 if(e.key == "Right" || e.key == "ArrowRight"){
@@ -260,23 +261,60 @@
                 ctx.fillStyle = "#0095DD";
                 ctx.fillText("Lives " + lives, canvas.width - 65, 20);
             }
-           
-         
+            function collisionDetection(){
+                    for(var c = 0 ;c<bricks._col;c++){
+                        for(var r = 0 ; r<bricks._row;r++){
+                            var b = bricks.bricktable[c][r];
+                            if(b.brick.getStatus() >0){
+                                if(ball.getX()> b.brick.getPostX()  && ball.getX() < b.brick.getPostX() + b.brick.getWidth() && ball.getY() > b.brick.getPostY()  &&  ball.getY() <b.brick.getPostY()  + b.brick.getHeight()){
+                            
+                                    ball.turnY();
+                                    b.brick.setStatus(b.brick.getStatus()-1) ; 
+                                    score++;
+                                    if(score >= bricks._totallscore){
+                                        alert("You Win, CONGRATULATIONS");
+                                        document.location.reload();
+                                    }
+                                }
+                            }
+                        }
+                    }        
+                }   
+            function check(){
+                    if(ball.getY()< ball.getRadius()+wall.getPositionY()){
+                       ball.turnY();    
+                    }else if(ball.getX() >paddle.getPosition() && ball.getX() < paddle.getPosition() + paddle.getWidth() && ball.getY() > wall.getHeight()+wall.getPositionY()-paddle.getHeight()-50 && ball.getY() < wall.getHeight()+wall.getPositionY()-50){
+                       ball.turnY();
+                    }else if(ball.getY() >wall.getHeight()+wall.getPositionY()-paddle.getHeight()){
+                        lives--;
+                        if(!lives){
+                            alert("GAME OVER");
+                            document.location.reload();
+                        }else{
+                            ball=new Ball(ball.getRadius());
+                            paddle.setPosition((wall.getWidth()+wall.getPositionX()-paddle.getWidth())/2);
+                        }
+                    }
+                if(ball.getX() < ball.getRadius()+wall.getPositionX() || ball.getX()> wall.getWidth()+wall.getPositionX() - ball.getRadius()){
+                    ball.turnX();    
+                }
+                if(leftPressed && paddle.getPosition() > wall.getPositionX()){
+                    paddle.setPosition(paddle.getPosition()-7);
+                    if(paddle.getPosition()<+wall.getPositionX()){
+                        paddle.setPosition(wall.getPositionX());
+                    }
+                }else if(rightPressed && paddle.getPosition() < wall.getWidth()+wall.getPositionX()-paddle.getWidth()){
+                    paddle.setPosition(paddle.getPosition()+7);
+                    if(paddle.getPosition()+paddle.getWidth()>wall.getWidth()+wall.getPositionX()){
+                        paddle.setPosition(wall.getWidth()+wall.getPositionX()-paddle.getWidth());
+                    }
+                }
+                ball.update();
+                }
         
             // void mainのような
-            function draw() {
-                ctx.clearRect(0,0,canvas.width,canvas.height);
-                bricks.drawBricks(ctx);
-                ball.draw(ctx);
-                paddle.draw(ctx);
-                bricks.collisionDetection();
-                drawScore();
-                drawLives();
-                ball.check();
-                requestAnimationFrame(draw);
-            }
             
-            draw();
+            
 
             
             
