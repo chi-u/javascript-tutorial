@@ -121,11 +121,10 @@
             }
 
             class Brick extends Rect{
-             
                 _status;
                 _postX;
                 _postY;         
-                _color = ["#0000AA","#00AA00","#AA0000"];       
+                _color = ["#005599","#0075BB","#0095DD"];       
                 constructor(height,width,postX,postY){
                     super(height,width);
                     this._postX=postX;
@@ -164,7 +163,7 @@
                 _padding;
                 _OffsetTop;
                 _OffsetLeft;
-                _totallscore =0;
+                _totalscore =0;
                 bricktable =[];
                 constructor(row,col,padding,OffsetTop,OffsetLeft){
                     this._row=row;
@@ -178,7 +177,7 @@
                         for(var r = 0; r < row;r++){
                            
                             this.bricktable[c][r] ={brick :new Brick(20,40,c*(40+padding)+OffsetLeft,r*(20+padding)+OffsetTop)};// 指定される場所にオブジェクトを代入する（x=0,y=0)
-                            this._totallscore += this.bricktable[c][r].brick.getStatus();
+                            this._totalscore += this.bricktable[c][r].brick.getStatus();
                         }
                     }          
                     if(this._totallscore < 10){
@@ -195,6 +194,12 @@
                         }
                     }
                 }
+                getTotal(){
+                    return this._totalscore;
+                }
+                setTotal(score){
+                    this._totalscore = score;
+                }
               
         }
             
@@ -208,7 +213,8 @@
             var paddle = new Paddle(10,75);
             var score = 0;
             var lives = 3;
-            var ball = new Ball(5);
+            var ball = new Ball(10);
+
             document.addEventListener("keydown",keyDownHandker,false);
             document.addEventListener("keyup",keyUpHandker,false);
             
@@ -224,6 +230,7 @@
                 collisionDetection();
                 drawScore();
                 drawLives();
+                drawless();
                 check();
                 requestAnimationFrame(draw);
             }
@@ -256,30 +263,48 @@
                 ctx.fillStyle="#0095DD";
                 ctx.fillText("Score: " + score, 8, 20);
             }
+            function drawless(){
+                ctx.font = "16px Arial";
+                ctx.fillStyle = "#0095DD";
+                ctx.fillText("あと " + bricks.getTotal(), canvas.width/2, 20);
+            }
             function drawLives(){
                 ctx.font = "16px Arial";
                 ctx.fillStyle = "#0095DD";
                 ctx.fillText("Lives " + lives, canvas.width - 65, 20);
             }
-            function collisionDetection(){
+           
+                function collisionDetection(){
                     for(var c = 0 ;c<bricks._col;c++){
                         for(var r = 0 ; r<bricks._row;r++){
                             var b = bricks.bricktable[c][r];
                             if(b.brick.getStatus() >0){
-                                if(ball.getX()> b.brick.getPostX()  && ball.getX() < b.brick.getPostX() + b.brick.getWidth() && ball.getY() > b.brick.getPostY()  &&  ball.getY() <b.brick.getPostY()  + b.brick.getHeight()){
-                            
-                                    ball.turnY();
+                                if(ball.getY()<ball.getRadius()+b.brick.getPostY()+b.brick.getHeight() && ball.getY()>b.brick.getPostY()-ball.getRadius()&&ball.getX()>b.brick.getPostX() -ball.getRadius() && ball.getX()<b.brick.getPostX()+b.brick.getWidth()+ball.getRadius()){
+                                    if(ball.getX()>b.brick.getPostX()&& ball.getX()<b.brick.getPostX()+b.brick.getWidth()){
+                                        ball.turnY();
+                                        
+                                       
+                                    }else if(ball.getY()>b.brick.getPostY()&& ball.getY()<b.brick.getPostY()+b.brick.getWidth()){
+                                        ball.turnX();
+                                    }else{
+                                        ball.turnY();
+                                        ball.turnX();
+                                    }
                                     b.brick.setStatus(b.brick.getStatus()-1) ; 
                                     score++;
-                                    if(score >= bricks._totallscore){
+                                    bricks.setTotal(bricks.getTotal()-1);
+                                    if(bricks.getTotal()==0){
                                         alert("You Win, CONGRATULATIONS");
                                         document.location.reload();
+                                        break;
                                     }
+                                    
                                 }
                             }
                         }
-                    }        
-                }   
+                    }
+                }       
+                   
             function check(){
                     if(ball.getY()< ball.getRadius()+wall.getPositionY()){
                        ball.turnY();    
