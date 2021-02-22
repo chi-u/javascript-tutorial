@@ -60,12 +60,48 @@
                     this._dx = -i;
                     this._dy = -j;
                 }
-                strikeBrick(brick){
-
-                    if(this._y<this._Radius+brick.getPostY()+brick.getHeight() && this._y>brick.getPostY()-this._Radius&&this._x>brick.getPostX() -this._Radius && this._x <brick.getPostX()+brick.getWidth()+this._Radius){
-                        if(this._x>brick.getPostX()&& this._x<brick.getPostX()+brick.getWidth()){
+                strike(brick){
+                    if(this._x >= brick.getPositionX()+this._Radius && this._x <= brick.getPositionX()+ brick.getWidth() -this._Radius&& this._y >= brick.getPositionY() +this._Radius&& this._y <= brick.getPositionY()+ brick.getHeight()-this._Radius){
+                        if(this._x < Math.abs(this._dx) +this._Radius + brick.getPositionX() || this._x> brick.getWidth()+brick.getPositionX() - this._Radius- Math.abs(this._dx)){
+                            this.turnX();
+                        }
+                        if(this._y<  Math.abs(this._dy)+this._Radius+brick.getPositionY()){//修正中
+                                this.turnY();    
+                        }
+                        
+                        
+                        
+                        return false;
+                    }else{
+                        if(this._y > 200){
+                            if(this._x >brick.getPositionX() && this._x < brick.getPositionX() + brick.getWidth() && this._y > brick._positionY - this._Radius*1.5 && this._y < brick._positionY){
+                                var px = brick.getPositionX();
+                                var bx = this._x;
+                                var y= Math.PI*(bx-px)*5/6/brick.getWidth()+Math.PI/12;
+                                this.turnXY(5*Math.sqrt(2)*Math.cos(y),5*Math.sqrt(2)*Math.sin(y));
+                            }
+                            return false;
+                        }else{
+                            if(this._y<this._Radius+brick.getPositionY()+brick.getHeight() && this._y>brick.getPositionY()-this._Radius&&this._x>brick.getPositionX() -this._Radius && this._x <brick.getPositionX()+brick.getWidth()+this._Radius){
+                               if(this._x>brick.getPositionX()&& this._x<brick.getPositionX()+brick.getWidth()){
+                                this.turnY();
+                              }else if(this._x>brick.getPositionY()&& this._y<brick.getPositionY()+brick.getWidth()){
+                             this.turnX();
+                            }else{
                             this.turnY();
-                        }else if(this._x>brick.getPostY()&& this._y<brick.getPostY()+brick.getWidth()){
+                            this.turnX();
+                          }
+                        return true;
+                        }   
+                        return false;
+                    }
+                }
+                }
+               /* strikeBrick(brick){
+                    if(this._y<this._Radius+brick.getPositionY()+brick.getHeight() && this._y>brick.getPositionY()-this._Radius&&this._x>brick.getPositionX() -this._Radius && this._x <brick.getPositionX()+brick.getWidth()+this._Radius){
+                        if(this._x>brick.getPositionX()&& this._x<brick.getPositionX()+brick.getWidth()){
+                            this.turnY();
+                        }else if(this._x>brick.getPositionY()&& this._y<brick.getPositionY()+brick.getWidth()){
                             this.turnX();
                         }else{
                             this.turnY();
@@ -76,10 +112,10 @@
                     return false;
                 }
                 strikeWall(wall){
-                    if(this._x < 1.5*this._Radius +wall.getPositionX() || this._x> wall.getWidth()+wall.getPositionX() - 1.5*this._Radius){
+                    if(this._x < this._Radius +wall.getPositionX() || this._x> wall.getWidth()+wall.getPositionX() - this._Radius){
                         this.turnX();
                     }
-                    if(this._y< 1.5*this._Radius+wall.getPositionY()){
+                    if(this._y< this._Radius+wall.getPositionY()){
                         this.turnY();    
                     }
                 }
@@ -91,13 +127,15 @@
                         
                         this.turnXY(5*Math.sqrt(2)*Math.cos(y),5*Math.sqrt(2)*Math.sin(y));
                     } 
-                }
+                }*/
             }
             
             //基本のブロック
             class Rect{
                 _height;
                 _width;
+                _positionX;
+                _positionY;
                 constructor(height,width){
                     this._width= width;
                     this._height= height;
@@ -108,35 +146,32 @@
                 getWidth(){
                     return this._width;
                 }
-                setWidth(width){
-                    this._width=width;
-                }
-            }          
-            //パドル
-            class Paddle extends Rect{
-                _positionX;
-                _positionY;
-                constructor(height,width){
-                    super(height,width);
-                    this._positionX=(canvas.width-width)/2;
-                    this._positionY = canvas.height-100;
-                }
                 getPositionX(){
                     return this._positionX;
-                }
-                setPositionX(position){
-                    this._positionX=position;
-                }
-                setWidth(width){
-                    super.setWidth(width);
                 }
                 getPositionY(){
                     return this._positionY;
                 }
+            }          
+            //パドル
+            class Paddle extends Rect{
+                constructor(height,width){
+                    super(height,width);
+                    super._positionX=(canvas.width-width)/2;
+                    super._positionY = canvas.height-100;
+                }
+                
+                setPositionX(position){
+                    this._positionX=position;
+                }
+                setWidth(width){
+                    super._width = width;
+                }
+                
                 
                 draw(c){
                     c.beginPath();
-                    c.rect(this._positionX, this._positionY,this.getWidth(),this.getHeight());
+                    c.rect(this.getPositionX(), this.getPositionY(),this.getWidth(),this.getHeight());
                     c.fillStyle = "#0095DD";
                     c.fill();
                     c.closePath();
@@ -144,27 +179,19 @@
             }
             //壁　
             class Wall extends Rect{
-                _positionX;
-                _positionY;
-
+                
                 constructor(height,width){
                     super(height,width);
-                    this._positionX=(canvas.width-width)/2;
-                    this._positionY=(canvas.height-height)/2;
+                    super._positionX=(canvas.width-width)/2;
+                    super._positionY=(canvas.height-height)/2;
                     
                 }
-                getPositionX(){
-                    return this._positionX;
-                }
-                getPositionY(){
-                    return this._positionY;
-                }
                 setPosition(position){
-                    this._positionX=position;
+                    super._positionX=position;
                 }
                 draw(c){
                     c.beginPath();
-                    c.rect(this._positionX, this._positionY,super.getWidth(),super.getHeight());
+                    c.rect(this.getPositionX(), this.getPositionY(),this.getWidth(),this.getHeight());
                     c.fillStyle = "#FFFFFF";
                     c.fill();
                     c.closePath();
@@ -173,13 +200,12 @@
             //削除できるブロック
             class Brick extends Rect{
                 _status;
-                _postX;
-                _postY;         
+                       
                 _color = ["#005511","#007533","#009555","#005577","#007599","#0095AA","#0055CC","#0075EE"];       
                 constructor(height,width,postX,postY,num){
                     super(height,width);
-                    this._postX=postX;
-                    this._postY=postY;
+                    super._positionX=postX;
+                    super._positionY=postY;
                     this._status= Math.floor( Math.random() * num);
                 }
                 getStatus(){
@@ -188,15 +214,10 @@
                 setStatus(status){
                     this._status=status;
                 }
-                getPostX(){
-                    return this._postX;
-                }
-                getPostY(){
-                    return this._postY;
-                }
+                
                 draw(c){
                     ctx.beginPath();
-                    ctx.rect(this._postX,this._postY,this._width,this._height);
+                    ctx.rect(this.getPositionX(), this.getPositionY(),this.getWidth(),this.getHeight());
                     
                     ctx.fillStyle = this._color[this._status-1];
                     
@@ -305,8 +326,8 @@
             var upPressed =false;
             var downPressed =false;
             var wall = new Wall(540,420);
-        //  var bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30);
-            var bricks = new Bricks(1,9,0,wall.getPositionY()+30,wall.getPositionX()+30,2);
+            var bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30,2);
+            //var bricks = new Bricks(1,9,0,wall.getPositionY()+30,wall.getPositionX()+30,2);
             var paddle = new Paddle(10,75);
             var board = new gameboard(0,3,bricks);
             var ball = new Ball(5);
@@ -324,9 +345,9 @@
                 ball.draw(ctx);
                 paddle.draw(ctx);
                 board.draw(ctx);
-                ball.strikeWall(wall);
-                ball.strikePaddle(paddle)
-                control();
+                ball.strike(paddle);
+                ball.strike(wall);
+                controlPaddle();
                 check();
                 ball.update();
                 requestAnimationFrame(draw);
@@ -338,15 +359,15 @@
                     for(var r = 0 ; r<bricks._row;r++){
                         var b = bricks.bricktable[c][r];
                         if(b.brick.getStatus() >0){
-                            if(ball.strikeBrick(b.brick)){
+                            if(ball.strike(b.brick)){
                                 b.brick.setStatus(b.brick.getStatus()-1) ; 
                                 board.plusScore();
                                 bricks.setTotal(bricks.getTotal()-1);
                                 if(bricks.getTotal()==0){
                                     alert("You Win,Levelup");
                                     board.levelup();
-                                    //bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30,(board.getLevel()+1)/2);
-                                    bricks = new Bricks(1,9,0,wall.getPositionY()+30,wall.getPositionX()+30,(board.getLevel()+1));
+                                    bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30,board.getLevel()/3+2);
+                                    //bricks = new Bricks(1,9,0,wall.getPositionY()+30,wall.getPositionX()+30,(board.getLevel()+1));
                                     ball = new Ball(5);
                                     board.setBricks(bricks);
                                     // document.location.reload();
@@ -360,6 +381,8 @@
                         board.minusLives();
                         if(board.getLives()==0){
                             alert("GAME OVER");
+                            ball=new Ball(ball.getRadius());
+                            paddle.setPositionX((wall.getWidth()+wall.getPositionX()-paddle.getWidth())/2);
                             document.location.reload();
                         }else{
                             alert("亡くなりました");
@@ -370,7 +393,7 @@
                 
                 
             }
-            function control(){
+            function controlPaddle(){
                 if(leftPressed && paddle.getPositionX() > wall.getPositionX()){
                     paddle.setPositionX(paddle.getPositionX()-7);
                     if(paddle.getPositionX()<wall.getPositionX()){
