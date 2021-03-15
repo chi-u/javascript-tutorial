@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8" />
+        <meta charset = "utf-8" />
         <title>Gamedev Canvas Work</title>
         <style>
-            * {padding: 0;margin :0 ;}
-            canvas { background:#eee;display:block;margin:0 auto ;}
+            * {padding : 0;margin : 0 ;}
+            canvas { background :#eee ; display : block ; margin : 0 auto ;}
+            
         </style>
     </head>
     <body>
-        <canvas id ="myCanvas" width ="480" height="600" align = "center"></canvas>
+        <canvas id = "myCanvas" width = "480" height= "600" align = "center"></canvas>
         <script>
+            
             //JavaScriptのコード
             /*
             ボールのクラスを作成しました
@@ -23,16 +25,16 @@
             class Ball{
                 
                 _Radius;//rを小文字に（また来週）
-                _x=canvas.width/2;
-                _y=canvas.height-200;
-                _dx=5;
-                _dy=-5;
+                _x = canvas.width / 2;
+                _y = canvas.height - 200;
+                _dx = 5;
+                _dy = -5;
                 constructor(Radius){
-                    this._Radius =Radius;
+                    this._Radius = Radius;
                 }
                 draw(c){
                     c.beginPath();
-                    c.arc(this._x, this._y,this._Radius, 0, Math.PI*2,false);
+                    c.arc(this._x, this._y, this._Radius, 0, Math.PI*2, false);
                     c.fillStyle = "green";
                     c.fill();
                     c.closePath();
@@ -61,84 +63,48 @@
                     this._dy = -j;
                 }
                 strike(brick){
-                    if(this._x >= brick.getPositionX()+this._Radius && this._x <= brick.getPositionX()+ brick.getWidth() -this._Radius&& this._y >= brick.getPositionY() +this._Radius&& this._y <= brick.getPositionY()+ brick.getHeight()-this._Radius){
-                        if(this._x < Math.abs(this._dx) +this._Radius + brick.getPositionX() || this._x> brick.getWidth()+brick.getPositionX() - this._Radius- Math.abs(this._dx)){
+                    if(this._x >= brick.getPositionX() + this._Radius && this._x <= brick.getPositionX() + brick.getWidth() - this._Radius && this._y >= brick.getPositionY() + this._Radius && this._y <= brick.getPositionY() + brick.getHeight() - this._Radius){
+                        if(this._x < Math.abs(this._dx) + this._Radius + brick.getPositionX() || this._x > brick.getWidth() + brick.getPositionX() - this._Radius - Math.abs(this._dx)){
                             this.turnX();
                         }
-                        if(this._y<  Math.abs(this._dy)+this._Radius+brick.getPositionY()){//修正中
-                                this.turnY();    
+                        if(this._y <  Math.abs(this._dy) + this._Radius+brick.getPositionY()){
+                            this.turnY();    
                         }
-                        
-                        
-                        
                         return false;
                     }else{
                         if(this._y > 200){
-                            if(this._x >brick.getPositionX() && this._x < brick.getPositionX() + brick.getWidth() && this._y > brick._positionY - this._Radius*1.5 && this._y < brick._positionY){
+                            if(this._x > brick.getPositionX() && this._x < brick.getPositionX() + brick.getWidth() && this._y > brick.getPositionY() - this._Radius - Math.abs(this._dy) && this._y < brick.getPositionY()){
                                 var px = brick.getPositionX();
                                 var bx = this._x;
-                                var y= Math.PI*(bx-px)*5/6/brick.getWidth()+Math.PI/12;
-                                this.turnXY(5*Math.sqrt(2)*Math.cos(y),5*Math.sqrt(2)*Math.sin(y));
-                            }
-                            return false;
+                                var y= Math.PI * (bx-px) * 5 / 6 / brick.getWidth() + Math.PI / 12;
+                                this.turnXY(5 * Math.sqrt(2) * Math.cos(y), 5 * Math.sqrt(2) * Math.sin(y));
+                            }  
                         }else{
-                            if(this._y<this._Radius+brick.getPositionY()+brick.getHeight() && this._y>brick.getPositionY()-this._Radius&&this._x>brick.getPositionX() -this._Radius && this._x <brick.getPositionX()+brick.getWidth()+this._Radius){
-                               if(this._x>brick.getPositionX()&& this._x<brick.getPositionX()+brick.getWidth()){
-                                this.turnY();
-                              }else if(this._x>brick.getPositionY()&& this._y<brick.getPositionY()+brick.getWidth()){
-                             this.turnX();
-                            }else{
-                            this.turnY();
-                            this.turnX();
-                          }
-                        return true;
-                        }   
-                        return false;
-                    }
-                }
-                }
-               /* strikeBrick(brick){
-                    if(this._y<this._Radius+brick.getPositionY()+brick.getHeight() && this._y>brick.getPositionY()-this._Radius&&this._x>brick.getPositionX() -this._Radius && this._x <brick.getPositionX()+brick.getWidth()+this._Radius){
-                        if(this._x>brick.getPositionX()&& this._x<brick.getPositionX()+brick.getWidth()){
-                            this.turnY();
-                        }else if(this._x>brick.getPositionY()&& this._y<brick.getPositionY()+brick.getWidth()){
-                            this.turnX();
-                        }else{
-                            this.turnY();
-                            this.turnX();
+                            if(this._y < this._Radius+brick.getPositionY() + brick.getHeight() && this._y > brick.getPositionY() - this._Radius && this._x > brick.getPositionX() - this._Radius && this._x < brick.getPositionX() + brick.getWidth() + this._Radius){
+                                if(this._x > brick.getPositionX() && this._x < brick.getPositionX() + brick.getWidth()){
+                                    this.turnY();
+                                }else if(this._x > brick.getPositionY() && this._y < brick.getPositionY() + brick.getWidth()){
+                                    this.turnX();
+                                }else{
+                                    this.turnY();
+                                    this.turnX();
+                                }
+                                return true;
+                            }   
                         }
-                        return true;
-                    }
-                    return false;
-                }
-                strikeWall(wall){
-                    if(this._x < this._Radius +wall.getPositionX() || this._x> wall.getWidth()+wall.getPositionX() - this._Radius){
-                        this.turnX();
-                    }
-                    if(this._y< this._Radius+wall.getPositionY()){
-                        this.turnY();    
                     }
                 }
-                strikePaddle(paddle){
-                    if(this._x >paddle.getPositionX() && this._x < paddle.getPositionX() + paddle.getWidth() && this._y > paddle._positionY - this._Radius*1.5 && ball._y < paddle._positionY){
-                        var px = paddle.getPositionX();
-                        var bx = this._x;
-                        var y= Math.PI*(bx-px)*5/6/paddle.getWidth()+Math.PI/12;
-                        
-                        this.turnXY(5*Math.sqrt(2)*Math.cos(y),5*Math.sqrt(2)*Math.sin(y));
-                    } 
-                }*/
             }
             
-            //基本のブロック
+            //ベースオブジェクト
             class Rect{
                 _height;
                 _width;
                 _positionX;
                 _positionY;
-                constructor(height,width){
-                    this._width= width;
-                    this._height= height;
+                constructor(height, width){
+                    this._width = width;
+                    this._height = height;
                 }
                 getHeight(){
                     return this._height;
@@ -155,14 +121,14 @@
             }          
             //パドル
             class Paddle extends Rect{
-                constructor(height,width){
-                    super(height,width);
-                    super._positionX=(canvas.width-width)/2;
-                    super._positionY = canvas.height-100;
+                constructor(height, width){
+                    super(height, width);
+                    super._positionX = (canvas.width - width) / 2;
+                    super._positionY = canvas.height - 100;
                 }
                 
                 setPositionX(position){
-                    this._positionX=position;
+                    this._positionX = position;
                 }
                 setWidth(width){
                     super._width = width;
@@ -171,7 +137,7 @@
                 
                 draw(c){
                     c.beginPath();
-                    c.rect(this.getPositionX(), this.getPositionY(),this.getWidth(),this.getHeight());
+                    c.rect(this.getPositionX(), this.getPositionY(), this.getWidth(), this.getHeight());
                     c.fillStyle = "#0095DD";
                     c.fill();
                     c.closePath();
@@ -180,85 +146,81 @@
             //壁　
             class Wall extends Rect{
                 
-                constructor(height,width){
-                    super(height,width);
-                    super._positionX=(canvas.width-width)/2;
-                    super._positionY=(canvas.height-height)/2;
+                constructor(height, width){
+                    super(height, width);
+                    super._positionX = (canvas.width - width) / 2;
+                    super._positionY = (canvas.height - height) / 2;
                     
                 }
-                setPosition(position){
-                    super._positionX=position;
-                }
+               
                 draw(c){
                     c.beginPath();
-                    c.rect(this.getPositionX(), this.getPositionY(),this.getWidth(),this.getHeight());
+                    c.rect(this.getPositionX(), this.getPositionY(), this.getWidth(), this.getHeight());
                     c.fillStyle = "#FFFFFF";
                     c.fill();
                     c.closePath();
                 }
             }
-            //削除できるブロック
+            //削除できるブリック
             class Brick extends Rect{
                 _status;
-                       
-                _color = ["#005511","#007533","#009555","#005577","#007599","#0095AA","#0055CC","#0075EE"];       
-                constructor(height,width,postX,postY,num){
-                    super(height,width);
-                    super._positionX=postX;
-                    super._positionY=postY;
-                    this._status= Math.floor( Math.random() * num);
+                _color = ["#005511", "#007533", "#009555", "#005577", "#007599", "#0095AA", "#0055CC", "#0075EE"];       
+                constructor(height, width, postX, postY, num){
+                    super(height, width);
+                    super._positionX = postX;
+                    super._positionY = postY;
+                    this._status = Math.floor(Math.random() * num);
                 }
                 getStatus(){
                     return this._status;
                 }
                 setStatus(status){
-                    this._status=status;
+                    this._status = status;
                 }
                 
                 draw(c){
-                    ctx.beginPath();
-                    ctx.rect(this.getPositionX(), this.getPositionY(),this.getWidth(),this.getHeight());
+                    c.beginPath();
+                    c.rect(this.getPositionX(), this.getPositionY(), this.getWidth(), this.getHeight());
                     
-                    ctx.fillStyle = this._color[this._status-1];
+                    c.fillStyle = this._color[this._status - 1];
                     
-                    ctx.fill();
-                    ctx.fillStyle = "#000000";
-                    ctx.stroke();
-                    ctx.closePath();
+                    c.fill();
+                    c.fillStyle = "#000000";
+                    c.stroke();
+                    c.closePath();
                 }
             }
-            //ブロックのグループ
+            //ブリックのグループ
             class Bricks {
                 _row;
                 _col;
                 _padding;
                 _OffsetTop;
                 _OffsetLeft;
-                _totalscore =0;
-                bricktable =[];
-                constructor(row,col,padding,OffsetTop,OffsetLeft,num){
-                    this._row=row;
-                    this._col=col;
-                    this._padding=padding;
-                    this._OffsetTop=OffsetTop;
-                    this._OffsetLeft=OffsetLeft;
+                _totalscore = 0;
+                bricktable = [];
+                constructor(row, col, padding, OffsetTop, OffsetLeft, num){
+                    this._row = row;
+                    this._col = col;
+                    this._padding = padding;
+                    this._OffsetTop = OffsetTop;
+                    this._OffsetLeft = OffsetLeft;
                                 
-                    for(var c=0; c < col; c++){
-                        this.bricktable[c] =[];
-                        for(var r = 0; r < row;r++){
-                           
-                            this.bricktable[c][r] ={brick :new Brick(20,40,c*(40+padding)+1+OffsetLeft,r*(20+padding)+1+OffsetTop,num)};// 指定される場所にオブジェクトを代入する（x=0,y=0)
+                    for(var c = 0 ; c < col ; c++){
+                        this.bricktable[c] = [];
+                        for(var r = 0 ; r < row ; r++){
+                            this.bricktable[c][r] = {brick : new Brick(20, 40, c * (40 + padding) + 1 + OffsetLeft, r * (20+padding) + 1 + OffsetTop, num)};// 指定される場所にオブジェクトを代入する（x=0,y=0)
                             this._totalscore += this.bricktable[c][r].brick.getStatus();
                         }
                     }          
                 
                 }
                 
-                draw(c){
-                    for(var c = 0 ;c<this._col;c++){
-                        for(var r = 0 ; r<this._row;r++){
-                            if(this.bricktable[c][r].brick.getStatus()>0){
-                                this.bricktable[c][r].brick.draw(c);
+                draw(ctx){
+                    for(var c = 0 ; c < this._col ; c++){
+                        for(var r = 0 ; r < this._row ; r++){
+                            if(this.bricktable[c][r].brick.getStatus() > 0){
+                                this.bricktable[c][r].brick.draw(ctx);
                             }
                         }
                     }
@@ -269,35 +231,36 @@
                 setTotal(score){
                     this._totalscore = score;
                 }
-              
+                getCol(){
+                    return this._col;
+                }
+                getRow(){
+                    return this._row;
+                }
         }
+            //ゲーム状態ボード
             class gameboard{
                 _score ;
                 _lives ;
                 _bricks;
                 _level = 1;
-                constructor(score,life,bricks){
+                constructor(score, life, bricks){
                     this._score = score;
                     this._lives = life;
                     this._bricks = bricks;
                 }
 
                 draw(c){
-                    
-                    ctx.font = "16px Arial";
-                    ctx.fillStyle="#0095DD";
-                  ctx.fillText("Score: " + this._score, 8, 20);
-          
-                   ctx.font = "16px Arial";
-                   ctx.fillStyle = "#0095DD";
-                    ctx.fillText("レベル " + this._level,canvas.width/2-100, 20);
-                    ctx.font = "16px Arial";
-                   ctx.fillStyle = "#0095DD";
-                    ctx.fillText("あと " + this._bricks.getTotal(),canvas.width/2, 20);
-                    ctx.font = "16px Arial";
-                    ctx.fillStyle = "#0095DD";
-                    ctx.fillText("Lives " + this._lives,canvas.width - 65, 20);
+                    c.font = "16px Arial";
+                    c.fillStyle = "#0095DD";
+                    c.fillText("Score: " + this._score, 8, 20);
+                    c.fillText("レベル " + this._level, canvas.width / 2 - 100, 20);
+                    c.fillText("あと " + this._bricks.getTotal(), canvas.width / 2, 20);
+                    c.fillText("Lives " + this._lives,canvas.width - 65, 20);
             
+                }
+                getScore(){
+                    return this._score;
                 }
                 plusScore(){
                     this._score++;
@@ -319,115 +282,139 @@
                 }
             }
             
+            //構築
             var canvas =document.getElementById("myCanvas");
+           
             var ctx = canvas.getContext("2d");
-            var rightPressed =false;
-            var leftPressed =false;
-            var upPressed =false;
-            var downPressed =false;
-            var wall = new Wall(540,420);
-            var bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30,2);
-            //var bricks = new Bricks(1,9,0,wall.getPositionY()+30,wall.getPositionX()+30,2);
-            var paddle = new Paddle(10,75);
-            var board = new gameboard(0,3,bricks);
+            var rightPressed = false;
+            var leftPressed = false;
+            var upPressed = false;
+            var downPressed = false;
+            var wall = new Wall(540, 420);
+            var bricks = new Bricks(4, 9, 0, wall.getPositionY() + 30, wall.getPositionX() + 30, 2);
+            var paddle = new Paddle(10, 75);
+            var board = new gameboard(0, 3, bricks);
             var ball = new Ball(5);
-
-            document.addEventListener("keydown",keyDownHandker,false);
-            document.addEventListener("keyup",keyUpHandker,false);
-          
-            
-            document.addEventListener("mousemove",mouseMoveHandler,false);
+            var scorelist = ["0","0","0","0","0"];
+            if(window.sessionStorage.getItem("scorelist")==null){
+                window.sessionStorage.setItem("scorelist",scorelist.toString());
+            }
+            document.addEventListener("keydown", keyDownHandker, false);
+            document.addEventListener("keyup", keyUpHandker, false);
+            document.addEventListener("mousemove", mouseMoveHandler, false);
+           //図を表示
             draw();
             function draw() {
-                ctx.clearRect(0,0,canvas.width,canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 wall.draw(ctx);
                 bricks.draw(ctx);
                 ball.draw(ctx);
                 paddle.draw(ctx);
                 board.draw(ctx);
-                ball.strike(paddle);
-                ball.strike(wall);
+                
                 controlPaddle();
+                //判断と調整
                 check();
                 ball.update();
                 requestAnimationFrame(draw);
-                
             }
             function check(){
+                ball.strike(paddle);
+                ball.strike(wall);
+                
                 //すべでのブロックにぶつけるかだうか
-                for(var c = 0 ;c<bricks._col;c++){
-                    for(var r = 0 ; r<bricks._row;r++){
+                //UMLシーケンス図の続く
+                touchbrick:for(var c = 0 ; c < bricks.getCol() ; c++){
+                    for(var r = 0 ; r < bricks.getRow() ; r++){
                         var b = bricks.bricktable[c][r];
-                        if(b.brick.getStatus() >0){
+                        if(b.brick.getStatus() > 0){
                             if(ball.strike(b.brick)){
-                                b.brick.setStatus(b.brick.getStatus()-1) ; 
+                                b.brick.setStatus(b.brick.getStatus() - 1); 
                                 board.plusScore();
-                                bricks.setTotal(bricks.getTotal()-1);
-                                if(bricks.getTotal()==0){
-                                    alert("You Win,Levelup");
-                                    board.levelup();
-                                    bricks = new Bricks(4,9,0,wall.getPositionY()+30,wall.getPositionX()+30,board.getLevel()/3+2);
-                                    //bricks = new Bricks(1,9,0,wall.getPositionY()+30,wall.getPositionX()+30,(board.getLevel()+1));
-                                    ball = new Ball(5);
-                                    board.setBricks(bricks);
-                                    // document.location.reload();
-                                    break;
-                                }
+                                bricks.setTotal(bricks.getTotal() - 1); 
+                                break touchbrick;
                             }
                         }
                     }
                 }
-                if(ball.getY() >wall.getHeight()+wall.getPositionY()-paddle.getHeight()){
-                        board.minusLives();
-                        if(board.getLives()==0){
-                            alert("GAME OVER");
-                            ball=new Ball(ball.getRadius());
-                            paddle.setPositionX((wall.getWidth()+wall.getPositionX()-paddle.getWidth())/2);
-                            document.location.reload();
-                        }else{
-                            alert("亡くなりました");
-                            ball=new Ball(ball.getRadius());
-                            paddle.setPositionX((wall.getWidth()+wall.getPositionX()-paddle.getWidth())/2);
+                if(bricks.getTotal() == 0){
+                    alert("You Win,Levelup");
+                    board.levelup();
+                    bricks = new Bricks(4, 9, 0, wall.getPositionY() + 30, wall.getPositionX() + 30, (board.getLevel() / 3 + 2) > 9 ? 9 : board.getLevel() / 3 + 2);
+                    ball = new Ball(ball.getRadius());
+                    board.setBricks(bricks);
+                                    
+                }else if(ball.getY() > wall.getHeight() + wall.getPositionY() - paddle.getHeight()){
+                    board.minusLives();
+                    if(board.getLives() == 0){
+                        alert("GAME OVER");
+                        var table = window.sessionStorage.getItem("scorelist").split(",");
+                        var pt = board.getScore();
+                        for(var px = 0 ; px < table.length ; px++ ){
+                            if(pt>table[px]){
+                                for(var rpx = table.length-1 ; rpx >px ; rpx-- ){
+                                    table[rpx] = table[rpx-1]; 
+                                }
+                                table[px] = pt;
+                                break;
+                            }
                         }
+
+                        var rank = "あなたの得点は"+pt+"ポイント\nランキング：\n";
+                        for(var px = 0 ; px < table.length ; px++ ){
+                            rank = rank + "第" + (px+1) + "位:   " + table[px] + "ポイント\n";
+                        }
+                        alert(rank);
+                        window.sessionStorage.setItem("scorelist",table.toString());
+                        
+                        
+                        ball=new Ball(ball.getRadius());
+                        paddle.setPositionX((wall.getWidth() + wall.getPositionX()- paddle.getWidth()) / 2);
+                        document.location.reload();
+                    }else{
+                        alert("亡くなりました");
+                        ball=new Ball(ball.getRadius());
+                        paddle.setPositionX((wall.getWidth() + wall.getPositionX() - paddle.getWidth()) / 2);
                     }
+                }
                 
                 
             }
             function controlPaddle(){
                 if(leftPressed && paddle.getPositionX() > wall.getPositionX()){
-                    paddle.setPositionX(paddle.getPositionX()-7);
-                    if(paddle.getPositionX()<wall.getPositionX()){
+                    paddle.setPositionX(paddle.getPositionX() - 7);
+                    if(paddle.getPositionX() < wall.getPositionX()){
                         paddle.setPositionX(wall.getPositionX());
                     }
-                }else if(rightPressed && paddle.getPositionX() < wall.getWidth()+wall.getPositionX()-paddle.getWidth()){
-                    paddle.setPositionX(paddle.getPositionX()+7);
-                    if(paddle.getPositionX()+paddle.getWidth()>wall.getWidth()+wall.getPositionX()){
-                        paddle.setPositionX(wall.getWidth()+wall.getPositionX()-paddle.getWidth());
+                }else if(rightPressed && paddle.getPositionX() < wall.getWidth() + wall.getPositionX() - paddle.getWidth()){
+                    paddle.setPositionX(paddle.getPositionX() + 7);
+                    if(paddle.getPositionX() + paddle.getWidth() > wall.getWidth() + wall.getPositionX()){
+                        paddle.setPositionX(wall.getWidth() + wall.getPositionX() - paddle.getWidth());
                     }
                 }else if(upPressed && paddle.getWidth() < wall.getWidth()){
-                    if(paddle.getWidth()+paddle.getPositionX()<wall.getPositionX()+wall.getWidth()){
-                        paddle.setWidth(paddle.getWidth()+2);
+                    if(paddle.getWidth() + paddle.getPositionX() < wall.getPositionX() + wall.getWidth()){
+                        paddle.setWidth(paddle.getWidth() + 2);
                     }
-                    if(paddle.getPositionX()>wall.getPositionX()){
-                        paddle.setPositionX(paddle.getPositionX()-1);
+                    if(paddle.getPositionX() > wall.getPositionX()){
+                        paddle.setPositionX(paddle.getPositionX() - 1);
                     }
                     
-                }else if(downPressed && paddle.getWidth() >0){
-                    paddle.setWidth(paddle.getWidth()-2);
-                    paddle.setPositionX(paddle.getPositionX()+1);
+                }else if(downPressed && paddle.getWidth() > 0){
+                    paddle.setWidth(paddle.getWidth() - 2);
+                    paddle.setPositionX(paddle.getPositionX() + 1);
                 }
             }
-　　　　　//--------------------整合---------
+　　　　　
             function mouseMoveHandler(e){
-                var relativeX =e.clientX - canvas.offsetLeft;
-                if(relativeX >  paddle.getWidth() +wall.getPositionX()&& relativeX< wall.getWidth()+wall.getPositionX()){
-                    paddle.setPositionX(relativeX -paddle.getWidth());
+                var relativeX = e.clientX - canvas.offsetLeft;
+                if(relativeX > paddle.getWidth() + wall.getPositionX() && relativeX < wall.getWidth() + wall.getPositionX()){
+                    paddle.setPositionX(relativeX - paddle.getWidth());
                 }
                 
             }
             function keyUpHandker(e){
                 if(e.key == "Right" || e.key == "ArrowRight"){
-                    rightPressed =false;
+                    rightPressed = false;
                 }else if(e.key == "Left" || e.key == "ArrowLeft"){
                     leftPressed =false;
                 }else if(e.key == " Up" || e.key == "ArrowUp"){
@@ -449,11 +436,14 @@
                 }
             }
             
+
+
+
+
             
             
-                       
-            //壁にぶつけた場合
-           
+
         </script>
+           
     </body>
 </html>
