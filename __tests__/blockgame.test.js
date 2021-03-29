@@ -1,0 +1,506 @@
+class Ball {
+
+    _Radius;//rを小文字に（また来週）
+    _x = 480 / 2;
+    _y = 600 - 200;
+    _dx = 5;
+    _dy = -5;
+    constructor(Radius) {
+        this._Radius = Radius;
+    }
+    draw(c) {
+        //console.log("ボールの情報：位置（" + this._x + "," + this._y + "）半径：" + this._Radius + "速度（" + this._dx + "," + this._dy + "）");
+        /*c.beginPath();
+        c.arc(this._x, this._y, this._Radius, 0, Math.PI * 2, false);
+        c.fillStyle = "green";
+        c.fill();
+        c.closePath();*/
+    }
+    update() {
+        this._x += this._dx;
+        this._y += this._dy;
+    }
+    getRadius() {
+        return this._Radius;
+    }
+    getX() {
+        return this._x;
+    }
+    getY() {
+        return this._y;
+    }
+    turnX() {
+        this._dx *= -1;
+    }
+    turnY() {
+        this._dy *= -1;
+    }
+    turnXY(i, j) {
+        this._dx = -i;
+        this._dy = -j;
+    }
+    //メソッドで一つのサイドにぶつけたかを判断します
+    //option 1 ブリックの内側 -1　ブリックの外側 
+    warningRightside(brick, option) {
+        return this._x <= brick.getRight() - option * this._Radius;
+    }
+    warningLeftside(brick, option) {
+        return this._x >= brick.getPositionX() + option * this._Radius;
+    }
+    warningTopside(brick, option) {
+        return this._y >= brick.getPositionY() + option * this._Radius;
+    }
+    warningBottomside(brick, option) {
+        return this._y <= brick.getBottom() - option * this._Radius;
+    }
+
+    //--------以上は静的------以下は動的-------
+    touchRightWall(brick) {
+        return this._x > brick.getRight() - this._Radius - Math.abs(this._dx);
+    }
+    touchLeftWall(brick) {
+        return this._x < Math.abs(this._dx) + this._Radius + brick.getPositionX();
+    }
+    touchTopWall(brick) {
+        return this._y < Math.abs(this._dy) + this._Radius + brick.getPositionY();
+    }
+
+    /*壁　ブリックの内側
+      ブロック 　ブリックの外側  
+    */
+    strike(brick) {
+        /*ブリックの種類を判断する
+        ブリックの中にいると＞＞壁
+        ブリックの外にいると＞＞スクリーンの半分以下＞＞パドル
+                  ＞＞スクリーンの半分以上＞＞ブリック
+        スクリーンの観点かるする左上は(0,0) 右下は(1960,1080)
+        */
+        if (this.warningRightside(brick, 1) && //右
+            this.warningLeftside(brick, 1) && //左
+            this.warningTopside(brick, 1) && //上
+            this.warningBottomside(brick, 1)) { //下
+            //壁の場合
+            if (this.touchRightWall(brick) || this.touchLeftWall(brick)) {
+                this.turnX();
+                //console.log("横の壁をぶつけた");
+            }
+            if (this.touchTopWall(brick)) {
+                this.turnY();
+                //console.log("上の壁をぶつけた");
+            }
+            return false;
+        } else {
+            if (this._y > 200) {
+                //パドルの場合
+                //パドルの反射区域に入っているかを判断する
+                if (this._x < brick.getRight() &&  //右
+                    this._x > brick.getPositionX() && //左
+                    this._y > brick.getPositionY() - this._Radius - Math.abs(this._dy) && //上
+                    this._y < brick.getPositionY()) {　//下
+                    var px = brick.getPositionX();
+                    var bx = this._x;
+                    var y = Math.PI * (bx - px) * 5 / 6 / brick.getWidth() + Math.PI / 12;
+                    this.turnXY(5 * Math.sqrt(2) * Math.cos(y), 5 * Math.sqrt(2) * Math.sin(y));
+                    //console.log("パドルをぶつけた");
+                }
+            } else {
+                //ブリックの場合
+                if (this.warningRightside(brick, -1) && //右
+                    this.warningLeftside(brick, -1) && //左
+                    this.warningTopside(brick, -1) && //上
+                    this.warningBottomside(brick, -1)) {//下
+                        this.draw(1);
+                    if (this._x > brick.getPositionX() && this._x < brick.getRight()) {
+                        this.turnY();
+                        //console.log("ブリックの縦をぶつけた");
+                    } else if (this._y > brick.getPositionY() && this._y < brick.getBottom()) {
+                        this.turnX();
+                        //console.log("ブリックの横をぶつけた");
+                    } else {
+                        this.turnY();
+                        this.turnX();
+                        //console.log("ブリックの隅をぶつけた");
+                    }
+                    return true;
+                }
+            }
+        }
+    }
+}
+
+//ベースオブジェクト
+class Rect {
+    _height;
+    _width;
+    _positionX;
+    _positionY;
+    constructor(height, width) {
+        this._width = width;
+        this._height = height;
+    }
+    getHeight() {
+        return this._height;
+    }
+    getWidth() {
+        return this._width;
+    }
+    getPositionX() {
+        return this._positionX;
+    }
+    getPositionY() {
+        return this._positionY;
+    }
+    getBottom() {
+        return this._positionY + this._height;
+    }
+    getRight() {
+        return this._positionX + this._width;
+    }
+}
+//パドル
+class Paddle extends Rect {
+    constructor(height, width) {
+        super(height, width);
+        super._positionX = (480-width)/2;
+        super._positionY = 600 - 100;
+    }
+
+    setPositionX(position) {
+        this._positionX = position;
+    }
+    setWidth(width) {
+        super._width = width;
+    }
+
+
+    draw(c) {
+        //console.log("パドルの情報：位置（" + this.getPositionX() + "," + this.getPositionY() + "）大きさ：" + this.getWidth() + "," + this.getHeight() + "）");
+
+  /*    c.beginPath();
+      c.rect(this.getPositionX(), this.getPositionY(), this.getWidth(), this.getHeight());
+      c.fillStyle = "#0095DD";
+      c.fill();
+      c.closePath();
+  */}
+}
+//壁　
+class Wall extends Rect {
+    constructor(height, width) {
+        super(height, width);
+        super._positionX = (480 - width) / 2;
+        super._positionY = (600 - height) / 2;
+
+    }
+    draw(c) {
+        //console.log("壁の情報：位置（" + this.getPositionX() + "," + this.getPositionY() + "）大きさ：" + this.getWidth() + "," + this.getHeight() + "）");
+
+        /* c.beginPath();
+           c.rect(this.getPositionX(), this.getPositionY(), this.getWidth(), this.getHeight());
+           c.fillStyle = "#FFFFFF";
+           c.fill();
+           c.closePath();*/
+    }
+}
+//削除できるブリック
+class Brick extends Rect {
+    _status;
+    _color = ["#005511", "#007533", "#009555", "#005577", "#007599", "#0095AA", "#0055CC", "#0075EE"];
+    constructor(height, width, postX, postY, num) {
+        super(height, width);
+        super._positionX = postX;
+        super._positionY = postY;
+        this._status = Math.floor(Math.random() * num);
+    }
+    getStatus() {
+        return this._status;
+    }
+    setStatus(status) {
+        this._status = status;
+    }
+
+    draw(c) {
+        //console.log("パドルの情報：位置（" + this.getPositionX() + "," + this.getPositionY() + "）大きさ：" + this.getWidth() + "," + this.getHeight() + "）ライフ" + this.getStatus());
+
+     /* c.beginPath();
+      c.rect(this.getPositionX(), this.getPositionY(), this.getWidth(), this.getHeight());
+
+      c.fillStyle = this._color[this._status - 1];
+
+      c.fill();
+      c.fillStyle = "#000000";
+      c.stroke();
+      c.closePath();
+  */}
+}
+//ブリックのグループ
+class Bricks {
+    _row;
+    _col;
+    _padding;
+    _OffsetTop;
+    _OffsetLeft;
+    _totalscore = 0;
+    bricktable = [];
+    constructor(row, col, padding, OffsetTop, OffsetLeft, num) {
+        this._row = row;
+        this._col = col;
+        this._padding = padding;
+        this._OffsetTop = OffsetTop;
+        this._OffsetLeft = OffsetLeft;
+        if (num > 9) {
+            num = 9;
+        }
+        for (var c = 0; c < col; c++) {
+            this.bricktable[c] = [];
+            for (var r = 0; r < row; r++) {
+                // 指定される場所にオブジェクトを代入する（x=0,y=0)
+                this.bricktable[c][r] = { brick: new Brick(20, 40, c * (40 + padding) + 1 + OffsetLeft, r * (20 + padding) + 1 + OffsetTop, num) };
+                this._totalscore += this.bricktable[c][r].brick.getStatus();
+            }
+        }
+
+    }
+    draw(ctx) {
+        for (var c = 0; c < this._col; c++) {
+            for (var r = 0; r < this._row; r++) {
+                if (this.bricktable[c][r].brick.getStatus() > 0) {
+                    this.bricktable[c][r].brick.draw(ctx);
+                }
+            }
+        }
+    }
+    getTotal() {
+        return this._totalscore;
+    }
+    setTotal(score) {
+        this._totalscore = score;
+    }
+    getCol() {
+        return this._col;
+    }
+    getRow() {
+        return this._row;
+    }
+}
+//ゲーム状態ボード
+class gameboard {
+    _score;
+    _lives;
+    _bricks;
+    _level = 1;
+    _highscore;
+    constructor(score, life, bricks) {
+        this._score = score;
+        this._lives = life;
+        this._bricks = bricks;
+    }
+
+    draw(c) {
+        //console.log("ゲームの情報：ライフ" + this.getLives() + "トップ" + this._height);
+/*
+        c.font = "16px Arial";
+        c.fillStyle = "#0095DD";
+        c.fillText("Score: " + this._score, 8, 20);
+        c.fillText("レベル:" + this._level + "   あと:" + this._bricks.getTotal() + "   トップ:" + this._highscore, 480 / 2 - 150, 20);
+
+        c.fillText("Lives " + this._lives, 480 - 65, 20);
+*/
+    }
+    setHighscore(hs) {
+        this._highscore = hs;
+    }
+
+    getScore() {
+        return this._score;
+    }
+    plusScore() {
+        this._score++;
+    }
+    minusLives() {
+        this._lives--;
+    }
+    getLives() {
+        return this._lives;
+    }
+    levelup() {
+        this._level++;
+    }
+    getLevel() {
+        return this._level;
+    }
+    setBricks(b) {
+        this._bricks = b;
+    }
+}
+
+//構築
+//var canvas = document.getElementById("myCanvas");
+
+//var ctx = canvas.getContext("2d");
+var ctx = "1";
+var rightPressed = false;
+var leftPressed = false;
+var upPressed = false;
+var downPressed = false;
+var wall = new Wall(540, 420);
+
+var bricks = new Bricks(4, 9, 0, wall.getPositionY() + 30, wall.getPositionX() + 30, 2);
+var paddle = new Paddle(10, 70);
+var board = new gameboard(0, 3, bricks);
+var ball = new Ball(5);
+var scorelist = ["0", "0", "0", "0", "0"];
+var scorerank;
+paddle.draw(ctx);
+test('test 1.', ()=>{
+    expect(scorerank).toBe(scorelist);
+  });
+if (scorerank == null) {
+    scorerank = scorelist
+
+} else {
+
+    board.setHighscore(scorerank[0]);
+}
+board.draw(ctx);
+//document.addEventListener("keydown", keyDownHandker, false);
+//document.addEventListener("keyup", keyUpHandker, false);
+//document.addEventListener("mousemove", mouseMoveHandler, false);
+//図を表示
+//for (var i = 0; board.getLives()!=2; i++) {
+    draw();
+//}
+board.draw(ctx);
+function draw() {
+    //ctx.clearRect(0, 0,480, 600);
+    wall.draw(ctx);
+    //bricks.draw(ctx);
+    ball.draw(ctx);
+    //paddle.draw(ctx);
+    // board.draw(ctx);
+
+    // controlPaddle();
+    //判断と調整
+    check();
+    ball.update();
+    // requestAnimationFrame(draw);
+
+}
+function check() {
+    ball.strike(paddle);
+    ball.strike(wall);
+
+    //すべでのブロックにぶつけるかだうか
+    //UMLシーケンス図の続く
+    touchbrick: for (var c = 0; c < bricks.getCol(); c++) {
+        for (var r = 0; r < bricks.getRow(); r++) {
+            var b = bricks.bricktable[c][r];
+            if (b.brick.getStatus() > 0) {
+                if (ball.strike(b.brick)) {
+                    b.brick.setStatus(b.brick.getStatus() - 1);
+                    board.plusScore();
+                    bricks.setTotal(bricks.getTotal() - 1);
+                    break touchbrick;
+                }
+            }
+        }
+    }
+    if (bricks.getTotal() == 0) {
+        //console.log("You Win,Levelup");
+        board.levelup();
+        //ブリックのライフ最大値は8
+        bricks = new Bricks(4, 9, 0, wall.getPositionY() + 30, wall.getPositionX() + 30, board.getLevel() / 3 + 2);
+        ball = new Ball(ball.getRadius());
+        board.setBricks(bricks);
+
+    } else if (ball.getY() > wall.getBottom()) {
+        board.minusLives();
+        if (board.getLives() == 0) {
+            //console.log("GAME OVER");
+
+            var pt = board.getScore();
+            for (var px = 0; px < scorerank.length; px++) {
+                if (pt > scorerank[px]) {
+                    for (var rpx = scorerank.length - 1; rpx > px; rpx--) {
+                        scorerank[rpx] = scorerank[rpx - 1];
+                    }
+                    scorerank[px] = pt;
+                    break;
+                }
+            }
+
+            var rank = "あなたの得点は" + pt + "ポイント\nランキング：\n";
+
+            for (var px = 0; px < scorerank.length; px++) {
+                rank = rank + "第" + (px + 1) + "位:   " + scorerank[px] + "ポイント\n";
+            }
+            //console.log(rank);
+
+
+
+            ball = new Ball(ball.getRadius());
+            paddle.setPositionX((wall.getRight() - paddle.getWidth()) / 2);
+
+        } else {
+            //console.log("亡くなりました");
+            ball = new Ball(ball.getRadius());
+            paddle.setPositionX((wall.getRight() - paddle.getWidth()) / 2);
+        }
+    }
+
+
+}
+function controlPaddle() {
+    if (leftPressed && paddle.getPositionX() > wall.getPositionX()) {
+        paddle.setPositionX(paddle.getPositionX() - 7);
+        if (paddle.getPositionX() < wall.getPositionX()) {
+            paddle.setPositionX(wall.getPositionX());
+        }
+    } else if (rightPressed && paddle.getPositionX() < wall.getRight() - paddle.getWidth()) {
+        paddle.setPositionX(paddle.getPositionX() + 7);
+        if (paddle.getPositionX() + paddle.getWidth() > wall.getRight()) {
+            paddle.setPositionX(wall.getRight() - paddle.getWidth());
+        }
+    } else if (upPressed && paddle.getWidth() < wall.getWidth()) {
+        if (paddle.getRight() < wall.getRight()) {
+            paddle.setWidth(paddle.getWidth() + 2);
+        }
+        if (paddle.getPositionX() > wall.getPositionX()) {
+            paddle.setPositionX(paddle.getPositionX() - 1);
+        }
+
+    } else if (downPressed && paddle.getWidth() > 0) {
+        paddle.setWidth(paddle.getWidth() - 2);
+        paddle.setPositionX(paddle.getPositionX() + 1);
+    }
+}
+
+function mouseMoveHandler(e) {
+    var relativeX = e.clientX - offsetLeft;
+    if (relativeX > paddle.getWidth() + wall.getPositionX() && relativeX < wall.getRight()) {
+        paddle.setPositionX(relativeX - paddle.getWidth());
+    }
+
+}
+function keyUpHandker(e) {
+    if (e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = false;
+    } else if (e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = false;
+    } else if (e.key == " Up" || e.key == "ArrowUp") {
+        upPressed = false;
+    } else if (e.key == " Down" || e.key == "ArrowDown") {
+        downPressed = false;
+    }
+}
+function keyDownHandker(e) {
+    if (e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = true;
+    } else if (e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = true;
+
+    } else if (e.key == " Up" || e.key == "ArrowUp") {
+        upPressed = true;
+    } else if (e.key == " Down" || e.key == "ArrowDown") {
+        downPressed = true;
+    }
+}
